@@ -15,7 +15,7 @@ class AuthProvider with ChangeNotifier {
 
       // 2. Get authentication
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+          googleUser.authentication;
 
       // 3. Convert to Firebase credential
       final OAuthCredential credential = GoogleAuthProvider.credential(
