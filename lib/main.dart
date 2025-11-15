@@ -14,8 +14,19 @@ import 'screens/movie_detail_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  await FCMService.initialize(); // inisialisasi FCM
+  try {
+    await Firebase.initializeApp();
+    print("✓ Firebase initialized successfully");
+  } catch (e) {
+    print("✗ Error initializing Firebase: $e");
+  }
+  
+  try {
+    await FCMService.initialize(); // inisialisasi FCM
+    print("✓ FCM initialized successfully");
+  } catch (e) {
+    print("✗ Error initializing FCM: $e");
+  }
 
   runApp(const MyApp());
 }
