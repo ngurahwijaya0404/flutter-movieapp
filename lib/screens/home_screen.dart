@@ -15,8 +15,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    final movieProv = Provider.of<MovieProvider>(context, listen: false);
-    movieProv.fetchPopularMovies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final movieProv = Provider.of<MovieProvider>(context, listen: false);
+      movieProv.fetchPopularMovies();
+    });
   }
 
   @override
@@ -39,26 +41,37 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: movieProv.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : GridView.builder(
-              padding: const EdgeInsets.all(8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.62,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: movieProv.movies.length,
-              itemBuilder: (context, index) {
-                final movie = movieProv.movies[index];
-                return MovieCard(
-                  movie: movie,
-                  onTap: () {
-                    movieProv.fetchMovieDetail(movie.id);
-                    Navigator.pushNamed(context, '/detail', arguments: movie.id);
+          : movieProv.movies.isEmpty
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                      SizedBox(height: 16),
+                      Text("Tidak ada data film"),
+                    ],
+                  ),
+                )
+              : GridView.builder(
+                  padding: const EdgeInsets.all(8),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.62,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: movieProv.movies.length,
+                  itemBuilder: (context, index) {
+                    final movie = movieProv.movies[index];
+                    return MovieCard(
+                      movie: movie,
+                      onTap: () {
+                        movieProv.fetchMovieDetail(movie.id);
+                        Navigator.pushNamed(context, '/detail', arguments: movie.id);
+                      },
+                    );
                   },
-                );
-              },
-            ),
+                ),
     );
   }
 }

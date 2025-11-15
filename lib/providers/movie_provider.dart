@@ -9,15 +9,19 @@ class MovieProvider with ChangeNotifier {
   Movie? detail;
 
   bool isLoading = false;
+  String? errorMessage;
 
   Future<void> fetchPopularMovies() async {
     isLoading = true;
+    errorMessage = null;
     notifyListeners();
 
     try {
       movies = await api.getPopularMovies();
+      print("Fetched ${movies.length} movies successfully");
     } catch (e) {
       movies = [];
+      errorMessage = "Error: $e";
       print("Error fetchPopularMovies: $e");
     }
 
@@ -30,6 +34,7 @@ class MovieProvider with ChangeNotifier {
       detail = await api.getMovieDetail(id);
       notifyListeners();
     } catch (e) {
+      errorMessage = "Error loading detail: $e";
       print("Error fetchMovieDetail: $e");
     }
   }
