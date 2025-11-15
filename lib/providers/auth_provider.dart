@@ -4,29 +4,26 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   User? user;
 
   Future<void> signInWithGoogle() async {
     try {
-      // 1. Trigger Google Sign-In
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
 
-      // 2. Get authentication
-      final GoogleSignInAuthentication googleAuth =
-          googleUser.authentication;
-
-      // 3. Convert to Firebase credential
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-        accessToken: googleAuth.accessToken,
+      // Get tokens
+      final tokens = await googleUser.authentication;
+      
+      // Create Firebase credential
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        idToken: tokens.idToken,
+        accessToken: tokens.accessToken,
       );
 
-      // 4. Sign in to Firebase
-      UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-
+      // Sign in to Firebase
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
       user = userCredential.user;
       notifyListeners();
     } catch (e) {
@@ -36,7 +33,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await GoogleSignIn().signOut();
+    await _googleSignIn.signOut();
     await _auth.signOut();
     user = null;
     notifyListeners();
