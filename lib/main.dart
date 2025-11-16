@@ -16,7 +16,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize Firebase first
-  await FirebaseService.initialize();
+  final firebaseInitSuccess = await FirebaseService.initialize();
+  if (!firebaseInitSuccess) {
+    print("⚠ Warning: Firebase initialization may have failed, but app will continue");
+  }
   
   // Then initialize FCM (optional)
   try {
