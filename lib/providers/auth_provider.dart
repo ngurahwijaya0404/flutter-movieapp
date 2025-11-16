@@ -41,6 +41,19 @@ class AuthProvider with ChangeNotifier {
       await FirebaseService.ensureInitialized();
       print("✓ Firebase ready for authentication");
 
+      if (kIsWeb) {
+        // On web use Firebase Auth popup flow to avoid client_id mismatches
+        print("Using Firebase Auth popup flow for web");
+        final provider = GoogleAuthProvider();
+        final UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithPopup(provider);
+        user = userCredential.user;
+        print("Successfully signed in (web popup): ${user?.email}");
+        notifyListeners();
+        return;
+      }
+
+      // Mobile/native flow using google_sign_in package
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         print("Google sign in cancelled by user");
